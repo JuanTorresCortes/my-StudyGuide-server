@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   passwordHash: { type: String, required: true },
-  test: [completedTestSchema],
+  testRecord: [completedTestSchema],
 });
 
 const User = mongoose.model("user", userSchema);
