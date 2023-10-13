@@ -3,10 +3,13 @@ var router = express.Router();
 
 const { registerUser } = require("../Controllers/users");
 
+const { validateUserData } = require("../utils/validateUserData");
+
 /* GET users listing. */
 router.get("/", function (req, res, next) {
   res.send("respond with a resource");
 });
 
-router.post("/register-user", registerUser);
+router.post("/register-user", validateUserData, registerUser);
+
 module.exports = router;
