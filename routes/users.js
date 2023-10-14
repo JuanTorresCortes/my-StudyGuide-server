@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 
-const { registerUser } = require("../Controllers/users");
+const { registerUser, loginUser } = require("../Controllers/users");
 
 const { validateUserData } = require("../utils/validateUserData");
 
@@ -11,5 +11,6 @@ router.get("/", function (req, res, next) {
 });
 
 router.post("/register-user", validateUserData, registerUser);
+router.get("/login-user", validateUserData, loginUser);
 
 module.exports = router;
