@@ -1,7 +1,13 @@
 var express = require("express");
 var router = express.Router();
 
-const { registerUser, loginUser } = require("../Controllers/users");
+const {
+  registerUser,
+  loginUser,
+  getAllUsers,
+  getUser,
+  deleteUser,
+} = require("../Controllers/users");
 
 const { validateUserData } = require("../utils/validateUserData");
 
@@ -12,5 +18,8 @@ router.get("/", function (req, res, next) {
 
 router.post("/register-user", validateUserData, registerUser);
 router.get("/login-user", validateUserData, loginUser);
+router.get("/get-all-users", getAllUsers);
+router.get("/get-user-id/:id", getUser);
+router.delete("/delete-User/:id", deleteUser);
 
 module.exports = router;

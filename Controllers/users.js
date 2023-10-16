@@ -81,3 +81,71 @@ exports.loginUser = async (req, res) => {
       .json({ success: false, message: error.message, error: error });
   }
 };
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const allUsers = await User.find({});
+    res.status(200).json({ success: true, data: allUsers });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getUser = async (req, res) => {
+  try {
+    const userId = req.params.id; // Get the user's ID from the request parameters
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Return the user's information
+    res.status(200).json({
+      success: true,
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        gradeLevel: user.gradeLevel,
+        testRecord: user.testRecord,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete a user by its ID
+exports.deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id; // Get the user's ID from the request parameters
+
+    // Wait for the database to delete the user by its ID
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Return a success message
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
