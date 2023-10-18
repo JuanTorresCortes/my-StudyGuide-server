@@ -82,6 +82,32 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+// Controller function for validating user with JWT
+exports.validateUser = async (req, res) => {
+  try {
+    const decodedToken = res.locals.decodedToken;
+    // Find the user in the database using the decoded user ID from the JWT
+    const findUser = await User.findOne({ _id: decodedToken.userId });
+
+    if (!findUser) {
+      res.status(401).json({
+        success: false,
+        message: "error",
+        error: { user: "User not found" },
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      email: findUser.email,
+      name: `${findUser.firstName} ${findUser.lastName}`,
+      _id: findUser._id,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "error", error: error });
+  }
+};
+
 exports.getAllUsers = async (req, res) => {
   try {
     const allUsers = await User.find({});
