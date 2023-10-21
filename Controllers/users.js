@@ -1,9 +1,11 @@
 const User = require("../Model/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { isEmpty } = require("validator");
 
 // controller function to create new user (registration);
-exports.registerUser = async (req, res) => {
+const registerUser = async (req, res) => {
+  const errorObject = {};
   try {
     const { firstName, lastName, email, gradeLevel, password, testRecord } =
       req.body;
@@ -23,18 +25,38 @@ exports.registerUser = async (req, res) => {
       testRecord: testRecord,
     };
 
+    if (isEmpty(firstName)) {
+      errorObject.firstName = "First name is required";
+    } else if (isEmpty(lastName)) {
+      errorObject.lastName = "Last name is required";
+    } else if (isEmpty(gradeLevel)) {
+      errorObject.gradeLevel = "Grade level is required";
+    }
+
     // create a new User instance and save it to the database
     const newUser = await new User(userInfo); // grab data;
     await newUser.save(); // save to database
     res.status(200).json({ success: true });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: "Error", error: error });
+
+    if (error.code === 11000) {
+      // Duplicate email error
+      errorObject.email = "email is already in use";
+    }
+
+    if (Object.keys(errorObject).length > 0) {
+      return res.status(401).json({
+        success: false,
+        message: "Controller Error",
+        error: errorObject,
+      });
+    }
   }
 };
 
 // Controller function for user login
-exports.loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     // Find the user with the given email in the database
@@ -83,7 +105,7 @@ exports.loginUser = async (req, res) => {
 };
 
 // Controller function for validating user with JWT
-exports.validateUser = async (req, res) => {
+const validateUser = async (req, res) => {
   try {
     const decodedToken = res.locals.decodedToken;
     // Find the user in the database using the decoded user ID from the JWT
@@ -99,16 +121,18 @@ exports.validateUser = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      email: findUser.email,
-      name: `${findUser.firstName} ${findUser.lastName}`,
       _id: findUser._id,
+      name: `${findUser.firstName} ${findUser.lastName}`,
+      email: findUser.email,
+      gradeLevel: findUser.gradeLevel,
+      testRecord: findUser.testRecord,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "error", error: error });
   }
 };
 
-exports.getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
     const allUsers = await User.find({});
     res.status(200).json({ success: true, data: allUsers });
@@ -118,7 +142,7 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-exports.getUser = async (req, res) => {
+const getUser = async (req, res) => {
   try {
     const userId = req.params.id; // Get the user's ID from the request parameters
 
@@ -151,7 +175,7 @@ exports.getUser = async (req, res) => {
 };
 
 // Delete a user by its ID
-exports.deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id; // Get the user's ID from the request parameters
 
@@ -174,4 +198,13 @@ exports.deleteUser = async (req, res) => {
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
   }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  validateUser,
+  getAllUsers,
+  getUser,
+  deleteUser,
 };
