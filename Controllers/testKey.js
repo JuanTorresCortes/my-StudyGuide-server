@@ -1,6 +1,6 @@
 const TestKey = require("../Model/TestKey");
 
-exports.uploadKey = async (req, res) => {
+const uploadKey = async (req, res) => {
   try {
     // Check for required fields in request body
     if (!req.body.testKeyTopic) {
@@ -31,7 +31,7 @@ exports.uploadKey = async (req, res) => {
   }
 };
 
-exports.getKey = async (req, res) => {
+const getKey = async (req, res) => {
   try {
     const testKeyId = req.params.id;
     // Retrieve the testKey using the provided ID
@@ -53,7 +53,7 @@ exports.getKey = async (req, res) => {
   }
 };
 
-exports.deleteKey = async (req, res) => {
+const deleteKey = async (req, res) => {
   try {
     // Check if the testKey exists using the provided ID
     const testKey = await TestKey.findById(req.params.id);
@@ -78,4 +78,10 @@ exports.deleteKey = async (req, res) => {
       .status(500)
       .json({ success: false, message: "Error deleting testKey." });
   }
+};
+
+module.exports = {
+  uploadKey,
+  getKey,
+  deleteKey,
 };
