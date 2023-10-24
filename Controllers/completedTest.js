@@ -1,7 +1,7 @@
 const User = require("../Model/User");
 
 // Add a completed test to a user's test record
-exports.addTestCompleted = async (req, res) => {
+const addTestCompleted = async (req, res) => {
   try {
     const userId = req.params.id;
     const completedTest = req.body;
@@ -26,7 +26,7 @@ exports.addTestCompleted = async (req, res) => {
 };
 
 // Retrieve a user's completed tests
-exports.getTestCompleted = async (req, res) => {
+const getTestCompleted = async (req, res) => {
   try {
     const userId = req.params.id;
 
@@ -45,7 +45,7 @@ exports.getTestCompleted = async (req, res) => {
 };
 
 // Delete a specific completed test from a user's test record
-exports.deleteCompletedTest = async (req, res) => {
+const deleteCompletedTest = async (req, res) => {
   try {
     const userId = req.params.userId;
     const testId = req.params.testId; // assuming test ID is passed as a URL parameter
@@ -67,4 +67,10 @@ exports.deleteCompletedTest = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
+};
+
+module.exports = {
+  addTestCompleted,
+  getTestCompleted,
+  deleteCompletedTest,
 };

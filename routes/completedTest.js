@@ -9,7 +9,7 @@ const {
 
 // add completed test by user id and test data
 // http://localhost:4000/test-complete/add-completed-test/userId
-router.post("/add-completed-test/:id", addTestCompleted);
+router.put("/add-completed-test/:id", addTestCompleted);
 
 // get all users completed tests by user id
 // http://localhost:4000/test-complete/get-completed-test/id
