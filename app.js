@@ -14,6 +14,7 @@ var usersRouter = require("./routes/users");
 const testsRouter = require("./routes/tests");
 const testKeyRouter = require("./routes/testKey");
 const testCompletedRouter = require("./routes/completedTest");
+const adminRouter = require("./routes/");
 
 var app = express();
 
@@ -37,6 +38,7 @@ app.use("/users", usersRouter);
 app.use("/tests", testsRouter);
 app.use("/testKey", testKeyRouter);
 app.use("/test-complete", testCompletedRouter);
+app.use("/admin", adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

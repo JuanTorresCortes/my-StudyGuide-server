@@ -4,7 +4,6 @@ var router = express.Router();
 const {
   registerUser,
   loginUser,
-  getAllUsers,
   getUser,
   deleteUser,
   validateUser,
@@ -27,10 +26,6 @@ router.post("/register-user", validateUserData, registerUser);
 router.post("/login-user", validateUserData, loginUser);
 
 router.get("/validate", jwtValidate, validateUser);
-
-// get all users
-// http://localhost:4000/users/get-all-users
-router.get("/get-all-users", getAllUsers);
 
 // get user by id
 // http://localhost:4000/users//get-user-id/users-id

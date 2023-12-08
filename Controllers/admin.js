@@ -1,14 +1,14 @@
 const User = require("../Model/User");
+const Admin = require("../Model/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { isEmpty } = require("validator");
 
-// controller function to create new user (registration);
-const registerUser = async (req, res) => {
+// controller function to create new admin (registration);
+const registerAdmin = async (req, res) => {
   const errorObject = {};
   try {
-    const { firstName, lastName, email, gradeLevel, password, testRecord } =
-      req.body;
+    const { firstName, lastName, email, password } = req.body;
 
     //--------password plain text => bcrypt.genSalt() + bcrypt.hash() = passwordHash ------
     // Generate a random salt and hash the password using bcrypt;
@@ -16,26 +16,22 @@ const registerUser = async (req, res) => {
     const hash = await bcrypt.hash(password, salt);
 
     // create new user data
-    const userInfo = {
+    const adminInfo = {
       firstName: firstName,
       lastName: lastName,
       email: email,
-      gradeLevel: gradeLevel,
       passwordHash: hash,
-      testRecord: testRecord,
     };
 
     if (isEmpty(firstName)) {
       errorObject.firstName = "First name is required";
     } else if (isEmpty(lastName)) {
       errorObject.lastName = "Last name is required";
-    } else if (isEmpty(gradeLevel)) {
-      errorObject.gradeLevel = "Grade level is required";
     }
 
-    // create a new User instance and save it to the database
-    const newUser = await new User(userInfo); // grab data;
-    await newUser.save(); // save to database
+    // create a new Admin instance and save it to the database
+    const newAdmin = await new Admin(adminInfo); // grab data;
+    await newAdmin.save(); // save to database
     res.status(200).json({ success: true });
   } catch (error) {
     console.log(error);
@@ -55,15 +51,24 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Controller function for user login
-const loginUser = async (req, res) => {
+// Controller function for admin login
+const loginAdmin = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    // Find the user with the given email in the database
-    const foundUser = await User.findOne({ email: email });
+    const { email, password, key } = req.body;
+
+    if (key !== process.env.ADMIN_KEY) {
+      return res.status(401).json({
+        success: false,
+        message: "User or Password does not match",
+        error: { key: "User or Password does not match" }, // Send the error in an error object
+      });
+    }
+
+    // Find the Admin with the given email in the database
+    const foundAdmin = await Admin.findOne({ email: email });
 
     // If user not found or password does not match, return an error response
-    if (!foundUser) {
+    if (!foundAdmin) {
       return res.status(401).json({
         success: false,
         message: "User or Password does not match",
@@ -76,7 +81,7 @@ const loginUser = async (req, res) => {
     // If they match, it means the plain-text password is correct.
     const isPasswordValid = await bcrypt.compare(
       password,
-      foundUser.passwordHash
+      foundAdmin.passwordHash
     );
 
     if (!isPasswordValid) {
@@ -89,7 +94,7 @@ const loginUser = async (req, res) => {
 
     // Generate a JWT token for authentication => save token to local storage @ frontend
     //----token------------------saved data----------------signature-----------
-    const token = jwt.sign({ userId: foundUser._id }, process.env.SECRET_KEY, {
+    const token = jwt.sign({ userId: foundAdmin._id }, process.env.SECRET_KEY, {
       //--time expiration--
       expiresIn: "1hr",
     });
@@ -109,7 +114,7 @@ const validateUser = async (req, res) => {
   try {
     const decodedToken = res.locals.decodedToken;
     // Find the user in the database using the decoded user ID from the JWT
-    const findUser = await User.findOne({ _id: decodedToken.userId });
+    const findUser = await Admin.findOne({ _id: decodedToken.userId });
 
     if (!findUser) {
       res.status(401).json({
@@ -124,76 +129,21 @@ const validateUser = async (req, res) => {
       _id: findUser._id,
       name: `${findUser.firstName} ${findUser.lastName}`,
       email: findUser.email,
-      gradeLevel: findUser.gradeLevel,
-      testRecord: findUser.testRecord,
+      role: findUser.role,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "error", error: error });
   }
 };
 
-const getUser = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
-    const userId = req.params.id; // Get the user's ID from the request parameters
-
-    // Find the user by ID
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    // Return the user's information
-    res.status(200).json({
-      success: true,
-      user: {
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        gradeLevel: user.gradeLevel,
-        testRecord: user.testRecord,
-      },
-    });
+    const allUsers = await User.find({});
+    res.status(200).json({ success: true, data: allUsers });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Delete a user by its ID
-const deleteUser = async (req, res) => {
-  try {
-    const userId = req.params.id; // Get the user's ID from the request parameters
-
-    // Wait for the database to delete the user by its ID
-    const user = await User.findByIdAndDelete(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    // Return a success message
-    res.status(200).json({
-      success: true,
-      message: "User deleted successfully",
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-module.exports = {
-  registerUser,
-  loginUser,
-  validateUser,
-  getUser,
-  deleteUser,
-};
+module.exports = { registerAdmin, loginAdmin, validateUser, getAllUsers };
