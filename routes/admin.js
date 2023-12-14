@@ -6,6 +6,8 @@ const {
   loginAdmin,
   validateUser,
   getAllUsers,
+  getAllTests,
+  deleteUser,
 } = require("../Controllers/admin");
 
 const { validateUserData } = require("../utils/validateUserData");
@@ -15,10 +17,22 @@ const { jwtValidate } = require("../utils/jwtValidate");
 // http://localhost:4000/admin/register-admin
 router.post("/register-admin", validateUserData, registerAdmin);
 
-////////////////admin_routes
+// login admin
+// http://localhost:4000/admin/login-admin
+router.post("/login-admin", validateUserData, loginAdmin);
+
+router.get("/validate", jwtValidate, validateUser);
 
 // get all users
 // http://localhost:4000/admin/get-all-users
 router.get("/get-all-users", getAllUsers);
+
+// get all tests
+// http://localhost:4000/admin/get-all-tests
+router.get("/get-all-tests", getAllTests);
+
+// delete user by id
+// http://localhost:4000/admin/users-id
+router.delete("/delete-user/:userId", deleteUser);
 
 module.exports = router;

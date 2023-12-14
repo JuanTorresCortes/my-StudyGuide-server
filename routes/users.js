@@ -5,7 +5,6 @@ const {
   registerUser,
   loginUser,
   getUser,
-  deleteUser,
   validateUser,
 } = require("../Controllers/users");
 
@@ -30,9 +29,5 @@ router.get("/validate", jwtValidate, validateUser);
 // get user by id
 // http://localhost:4000/users//get-user-id/users-id
 router.get("/get-user-id/:id", getUser);
-
-// delete user by id
-// http://localhost:4000/users/users-id
-router.delete("/delete-User/:id", deleteUser);
 
 module.exports = router;

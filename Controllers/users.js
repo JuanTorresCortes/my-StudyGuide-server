@@ -164,36 +164,9 @@ const getUser = async (req, res) => {
   }
 };
 
-// Delete a user by its ID
-const deleteUser = async (req, res) => {
-  try {
-    const userId = req.params.id; // Get the user's ID from the request parameters
-
-    // Wait for the database to delete the user by its ID
-    const user = await User.findByIdAndDelete(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    // Return a success message
-    res.status(200).json({
-      success: true,
-      message: "User deleted successfully",
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
 module.exports = {
   registerUser,
   loginUser,
   validateUser,
   getUser,
-  deleteUser,
 };

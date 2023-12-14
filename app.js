@@ -14,7 +14,7 @@ var usersRouter = require("./routes/users");
 const testsRouter = require("./routes/tests");
 const testKeyRouter = require("./routes/testKey");
 const testCompletedRouter = require("./routes/completedTest");
-const adminRouter = require("./routes/");
+const adminRouter = require("./routes/admin");
 
 var app = express();
 

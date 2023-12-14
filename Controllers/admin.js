@@ -1,4 +1,5 @@
 const User = require("../Model/User");
+const Test = require("../Model/Test");
 const Admin = require("../Model/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -6,28 +7,34 @@ const { isEmpty } = require("validator");
 
 // controller function to create new admin (registration);
 const registerAdmin = async (req, res) => {
-  const errorObject = {};
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, key } = req.body;
+
+    if (key !== process.env.ADMIN_KEY) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authorized",
+        error: { key: "not authorized" }, // Send the error in an error object
+      });
+    }
 
     //--------password plain text => bcrypt.genSalt() + bcrypt.hash() = passwordHash ------
     // Generate a random salt and hash the password using bcrypt;
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
-    // create new user data
-    const adminInfo = {
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      passwordHash: hash,
-    };
-
     if (isEmpty(firstName)) {
       errorObject.firstName = "First name is required";
     } else if (isEmpty(lastName)) {
       errorObject.lastName = "Last name is required";
     }
+
+    // create new user data
+    const adminInfo = {
+      userName: `${firstName} ${lastName}`,
+      email: email,
+      passwordHash: hash,
+    };
 
     // create a new Admin instance and save it to the database
     const newAdmin = await new Admin(adminInfo); // grab data;
@@ -127,7 +134,7 @@ const validateUser = async (req, res) => {
     res.status(200).json({
       success: true,
       _id: findUser._id,
-      name: `${findUser.firstName} ${findUser.lastName}`,
+      name: findUser.userName,
       email: findUser.email,
       role: findUser.role,
     });
@@ -146,4 +153,49 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-module.exports = { registerAdmin, loginAdmin, validateUser, getAllUsers };
+const getAllTests = async (req, res) => {
+  try {
+    const allTests = await Test.find({}).select(
+      "_id testTopic grade createdAt"
+    );
+    res.status(200).json({ success: true, data: allTests });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete a user by its ID
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get the user's ID from the request parameters
+
+    // Wait for the database to delete the user by its ID
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Return a success message
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = {
+  registerAdmin,
+  loginAdmin,
+  validateUser,
+  getAllUsers,
+  getAllTests,
+  deleteUser,
+};

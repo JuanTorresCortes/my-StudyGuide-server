@@ -3,7 +3,7 @@ const { v4: uuid } = require("uuid");
 
 const adminSchema = new mongoose.Schema({
   _id: { type: String, default: uuid },
-  username: {
+  userName: {
     type: String,
     required: true,
     unique: true,
