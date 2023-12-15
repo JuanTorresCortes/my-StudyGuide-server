@@ -57,8 +57,16 @@ const registerUser = async (req, res) => {
 
 // Controller function for user login
 const loginUser = async (req, res) => {
+  const errorObject = {};
   try {
     const { email, password } = req.body;
+
+    if (isEmpty(email)) {
+      errorObject.email = "emil is required";
+    } else if (isEmpty(password)) {
+      errorObject.password = "password is required";
+    }
+
     // Find the user with the given email in the database
     const foundUser = await User.findOne({ email: email });
 
@@ -101,6 +109,13 @@ const loginUser = async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: error.message, error: error });
+  }
+  if (Object.keys(errorObject).length > 0) {
+    return res.status(401).json({
+      success: false,
+      message: "Controller Error",
+      error: errorObject,
+    });
   }
 };
 

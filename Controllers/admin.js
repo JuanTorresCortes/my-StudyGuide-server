@@ -66,8 +66,8 @@ const loginAdmin = async (req, res) => {
     if (key !== process.env.ADMIN_KEY) {
       return res.status(401).json({
         success: false,
-        message: "User or Password does not match",
-        error: { key: "User or Password does not match" }, // Send the error in an error object
+        message: "Email, Password or Key does not match",
+        error: { key: "Email, Password or Key does not match" }, // Send the error in an error object
       });
     }
 
@@ -78,8 +78,8 @@ const loginAdmin = async (req, res) => {
     if (!foundAdmin) {
       return res.status(401).json({
         success: false,
-        message: "User or Password does not match",
-        error: { email: "User or Password does not match" }, // Send the error in an error object
+        message: "Email, Password or Key does not match",
+        error: { email: "Email, Password or Key does not match" }, // Send the error in an error object
       });
     }
 
@@ -94,8 +94,8 @@ const loginAdmin = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "User or Password does not match",
-        error: { password: "User or Password does not match" }, // Send the error in an error object
+        message: "Email, Password or Key does not match",
+        error: { password: "Email, Password or Key does not match" }, // Send the error in an error object
       });
     }
 
@@ -191,6 +191,32 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// Delete a user by its ID
+const deleteTest = async (req, res) => {
+  try {
+    const testId = req.params.testId; // Get the Test's ID from the request parameters
+
+    // Wait for the database to delete the user by its ID
+    const test = await Test.findByIdAndDelete(testId);
+
+    if (!test) {
+      return res.status(404).json({
+        success: false,
+        message: "Test not found",
+      });
+    }
+
+    // Return a success message
+    res.status(200).json({
+      success: true,
+      message: "Test deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -198,4 +224,5 @@ module.exports = {
   getAllUsers,
   getAllTests,
   deleteUser,
+  deleteTest,
 };
