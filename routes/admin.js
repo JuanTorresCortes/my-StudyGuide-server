@@ -9,6 +9,8 @@ const {
   getAllTests,
   deleteUser,
   deleteTest,
+  editTest,
+  getTestByGradeSub,
 } = require("../Controllers/admin");
 
 const { validateUserData } = require("../utils/validateUserData");
@@ -39,5 +41,9 @@ router.delete("/delete-user/:userId", deleteUser);
 // delete test by id
 // http://localhost:4000/admin/users-id
 router.delete("/delete-test/:testId", deleteTest);
+
+router.put("/edit-test/:testId", editTest);
+
+router.get("/getTestByGradSub", getTestByGradeSub);
 
 module.exports = router;

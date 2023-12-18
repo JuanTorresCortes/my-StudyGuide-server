@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   },
   gradeLevel: {
     type: String,
-    enum: ["5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"],
+    enum: ["3", "4", "5", "6", "7", "8"],
     required: true,
   },
   passwordHash: { type: String, required: true },

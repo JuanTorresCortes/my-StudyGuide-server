@@ -5,10 +5,17 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { isEmpty } = require("validator");
 
-// controller function to create new admin (registration);
+//controller function to create new admin (registration);
 const registerAdmin = async (req, res) => {
+  let errorObject = {};
   try {
     const { firstName, lastName, email, password, key } = req.body;
+
+    if (isEmpty(firstName)) errorObject.firstName = "First name is required";
+    if (isEmpty(lastName)) errorObject.lastName = "Last name is required";
+    if (isEmpty(email)) errorObject.email = "Email is required";
+    if (isEmpty(password)) errorObject.password = "Password is required";
+    if (isEmpty(key)) errorObject.key = "Key is required";
 
     if (key !== process.env.ADMIN_KEY) {
       return res.status(401).json({
@@ -23,12 +30,6 @@ const registerAdmin = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
-    if (isEmpty(firstName)) {
-      errorObject.firstName = "First name is required";
-    } else if (isEmpty(lastName)) {
-      errorObject.lastName = "Last name is required";
-    }
-
     // create new user data
     const adminInfo = {
       userName: `${firstName} ${lastName}`,
@@ -37,7 +38,7 @@ const registerAdmin = async (req, res) => {
     };
 
     // create a new Admin instance and save it to the database
-    const newAdmin = await new Admin(adminInfo); // grab data;
+    const newAdmin = new Admin(adminInfo); // grab data;
     await newAdmin.save(); // save to database
     res.status(200).json({ success: true });
   } catch (error) {
@@ -156,7 +157,7 @@ const getAllUsers = async (req, res) => {
 const getAllTests = async (req, res) => {
   try {
     const allTests = await Test.find({}).select(
-      "_id testTopic grade createdAt"
+      "_id testTopic grade createdAt testKey"
     );
     res.status(200).json({ success: true, data: allTests });
   } catch (error) {
@@ -217,6 +218,70 @@ const deleteTest = async (req, res) => {
   }
 };
 
+const editTest = async (req, res) => {
+  try {
+    const { testId } = req.params; // URL parameter
+    const testUpdates = req.body; // The updated test data
+
+    // Find the test by its ID and update it
+    // The `{ new: true }` option returns the updated document
+    const updatedTest = await Test.findByIdAndUpdate(testId, testUpdates, {
+      new: true,
+    });
+
+    if (!updatedTest) {
+      return res.status(404).json({
+        success: false,
+        message: "Test not found",
+      });
+    }
+
+    // Return a success response with the updated test
+    res.status(200).json({
+      success: true,
+      message: "Test updated successfully",
+      data: updatedTest,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+const getTestByGradeSub = async (req, res) => {
+  try {
+    const { grade, subject } = req.query; // Extracting query parameters
+
+    // Query the database for tests matching the grade and subject
+    const tests = await Test.find({ grade: grade, testTopic: subject });
+
+    // Check if tests are found
+    if (tests.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No tests found",
+      });
+    }
+
+    // Return the found tests
+    res.status(200).json({
+      success: true,
+      data: tests,
+    });
+  } catch (error) {
+    console.error("Error retrieving tests by grade and subject:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -225,4 +290,6 @@ module.exports = {
   getAllTests,
   deleteUser,
   deleteTest,
+  editTest,
+  getTestByGradeSub,
 };
