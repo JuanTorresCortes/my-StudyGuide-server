@@ -6,6 +6,7 @@ const {
   loginUser,
   getUser,
   validateUser,
+  updateUser,
 } = require("../Controllers/users");
 
 const { validateUserData } = require("../utils/validateUserData");
@@ -29,5 +30,7 @@ router.get("/validate", jwtValidate, validateUser);
 // get user by id
 // http://localhost:4000/users//get-user-id/users-id
 router.get("/get-user-id/:id", getUser);
+
+router.put("/update-user/:userId", updateUser);
 
 module.exports = router;

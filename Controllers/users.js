@@ -138,6 +138,8 @@ const validateUser = async (req, res) => {
       success: true,
       _id: findUser._id,
       name: `${findUser.firstName} ${findUser.lastName}`,
+      firstName: findUser.firstName,
+      lastName: findUser.lastName,
       email: findUser.email,
       gradeLevel: findUser.gradeLevel,
       testRecord: findUser.testRecord,
@@ -179,9 +181,54 @@ const getUser = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get the user's ID from the request parameters
+    const { firstName, lastName, email, gradeLevel, password, testRecord } =
+      req.body;
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Update the user's information
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (gradeLevel) user.gradeLevel = gradeLevel;
+
+    // Save the updated user
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        gradeLevel: user.gradeLevel,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating user",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   validateUser,
   getUser,
+  updateUser,
 };
