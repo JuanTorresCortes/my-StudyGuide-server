@@ -12,7 +12,6 @@ mongooseConnect(); // Connect to the MongoDB database
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 const testsRouter = require("./routes/tests");
-const testKeyRouter = require("./routes/testKey");
 const testCompletedRouter = require("./routes/completedTest");
 const adminRouter = require("./routes/admin");
 
@@ -36,7 +35,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/tests", testsRouter);
-app.use("/testKey", testKeyRouter);
 app.use("/test-complete", testCompletedRouter);
 app.use("/admin", adminRouter);
 
