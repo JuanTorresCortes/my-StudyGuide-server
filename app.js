@@ -21,22 +21,28 @@ var app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN,
-  })
-); // Enable Cross-Origin Resource Sharing
+const corsOrigin =
+  process.env.NODE_ENV === "production"
+    ? "http://StudyGuide.juan-codes.com"
+    : "http://localhost:4000";
+
+app.use(cors({ origin: process.env.CORS_ORIGIN || corsOrigin }));
+
+if (!process.env.CORS_ORIGIN) {
+  console.error("CORS_ORIGIN environment variable is not set.");
+  process.exit(1); // Exit if critical configuration is missing
+}
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/tests", testsRouter);
-app.use("/test-complete", testCompletedRouter);
-app.use("/admin", adminRouter);
+app.use("/api", indexRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/tests", testsRouter);
+app.use("/api/test-complete", testCompletedRouter);
+app.use("/api/admin", adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
